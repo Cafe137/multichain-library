@@ -1,0 +1,28 @@
+{
+    "name": "@upcoming/multichain-library",
+    "private": false,
+    "version": "0.1.1",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "scripts": {
+        "build": "tsc"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "cafe-utility": "^33.0.0",
+        "viem": "^2.38.2"
+    },
+    "devDependencies": {
+        "@types/node": "^24.7.2",
+        "typescript": "^5.9.3"
+    }
+}

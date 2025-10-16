@@ -4,6 +4,14 @@ This repository contains a collection of cross-environment functions that are he
 
 # Getting Started
 
+## Installation
+
+```
+npm install @upcoming/multichain-library
+```
+
+## Usage
+
 Create an instance of the library:
 
 ```ts
@@ -14,6 +22,8 @@ const library = new MultichainLibrary(settings)
 
 -   `gnosisJsonRpc`
 -   `fetchTimeoutMillis`
+
+# Functions
 
 ## Nonce helpers
 

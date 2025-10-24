@@ -1,4 +1,4 @@
-import { Numbers, RollingValueProvider } from 'cafe-utility'
+import { Dates, Numbers, Objects, RollingValueProvider, System } from 'cafe-utility'
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { gnosis } from 'viem/chains'
@@ -23,17 +23,28 @@ export async function transferGnosisNative(
         chain: gnosis,
         transport: http(jsonRpcProvider.current())
     })
-    return account
-        .signTransaction({
-            chain: Constants.gnosisChainId,
-            chainId: Constants.gnosisChainId,
-            account: options.originAddress,
-            gas: BigInt(21000),
-            gasPrice: BigInt(Numbers.make('1 gwei')),
-            type: 'legacy',
-            to: options.to,
-            value: BigInt(options.amount),
-            nonce: await getGnosisTransactionCount(options.originAddress, settings, jsonRpcProvider)
-        })
-        .then(signedTx => client.sendRawTransaction({ serializedTransaction: signedTx }))
+    for (let i = 1; i <= 5; i++) {
+        try {
+            const serializedTransaction = await account.signTransaction({
+                chain: Constants.gnosisChainId,
+                chainId: Constants.gnosisChainId,
+                account: options.originAddress,
+                gas: BigInt(21000),
+                gasPrice: BigInt(Numbers.make(`${i} gwei`)),
+                type: 'legacy',
+                to: options.to,
+                value: BigInt(options.amount),
+                nonce: await getGnosisTransactionCount(options.originAddress, settings, jsonRpcProvider)
+            })
+            const hash = await client.sendRawTransaction({ serializedTransaction })
+            return hash
+        } catch (error) {
+            if (Objects.errorMatches(error, 'FeeTooLow')) {
+                await System.sleepMillis(Dates.seconds(2))
+            } else {
+                throw error
+            }
+        }
+    }
+    throw Error('Failed to send transaction after multiple attempts due to low fees.')
 }

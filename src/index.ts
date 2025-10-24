@@ -1,4 +1,4 @@
-import { FixedPointNumber, Objects } from 'cafe-utility'
+import { FixedPointNumber, Objects, RollingValueProvider } from 'cafe-utility'
 import { Constants } from './Constants'
 import { getGnosisBzzBalance } from './GnosisBzzBalance'
 import { getGnosisNativeBalance } from './GnosisNativeBalance'
@@ -19,18 +19,20 @@ export { SushiResponse } from './SushiSwap'
 
 export class MultichainLibrary {
     settings: MultichainLibrarySettings
+    jsonRpcProvider: RollingValueProvider<string>
     constants: typeof Constants = Constants
 
     constructor(settings?: Partial<MultichainLibrarySettings>) {
         this.settings = Objects.deepMerge2(getDefaultMultichainLibrarySettings(), settings || {})
+        this.jsonRpcProvider = new RollingValueProvider(this.settings.gnosisJsonRpcProviders)
     }
 
     getGnosisBzzBalance(address: string): Promise<FixedPointNumber> {
-        return getGnosisBzzBalance(address, this.settings)
+        return getGnosisBzzBalance(address, this.settings, this.jsonRpcProvider)
     }
 
     getGnosisNativeBalance(address: `0x${string}`): Promise<FixedPointNumber> {
-        return getGnosisNativeBalance(address, this.settings)
+        return getGnosisNativeBalance(address, this.settings, this.jsonRpcProvider)
     }
 
     getTokenPrice(tokenAddress: `0x${string}`, chainId: number): Promise<number> {
@@ -42,31 +44,31 @@ export class MultichainLibrary {
     }
 
     transferGnosisNative(options: TransferGnosisNativeOptions): Promise<`0x${string}`> {
-        return transferGnosisNative(options, this.settings)
+        return transferGnosisNative(options, this.settings, this.jsonRpcProvider)
     }
 
     waitForGnosisBzzBalanceToIncrease(address: string, initialBalance: bigint): Promise<void> {
-        return waitForGnosisBzzBalanceToIncrease(address, initialBalance, this.settings)
+        return waitForGnosisBzzBalanceToIncrease(address, initialBalance, this.settings, this.jsonRpcProvider)
     }
 
     waitForGnosisNativeBalanceToDecrease(address: `0x${string}`, initialBalance: bigint): Promise<void> {
-        return waitForGnosisNativeBalanceToDecrease(address, initialBalance, this.settings)
+        return waitForGnosisNativeBalanceToDecrease(address, initialBalance, this.settings, this.jsonRpcProvider)
     }
 
     waitForGnosisNativeBalanceToIncrease(address: `0x${string}`, initialBalance: bigint): Promise<void> {
-        return waitForGnosisNativeBalanceToIncrease(address, initialBalance, this.settings)
+        return waitForGnosisNativeBalanceToIncrease(address, initialBalance, this.settings, this.jsonRpcProvider)
     }
 
     swapOnGnosisAuto(options: GnosisSwapAutoOptions): Promise<`0x${string}`> {
-        return swapOnGnosisAuto(options, this.settings)
+        return swapOnGnosisAuto(options, this.settings, this.jsonRpcProvider)
     }
 
     swapOnGnosisCustom(options: GnosisSwapCustomOptions): Promise<`0x${string}`> {
-        return swapOnGnosisCustom(options, this.settings)
+        return swapOnGnosisCustom(options, this.settings, this.jsonRpcProvider)
     }
 
     getGnosisTransactionCount(address: `0x${string}`): Promise<number> {
-        return getGnosisTransactionCount(address, this.settings)
+        return getGnosisTransactionCount(address, this.settings, this.jsonRpcProvider)
     }
 
     getSushiSwapQuote(amount: string, sender: string, recipient: string): Promise<SushiResponse> {

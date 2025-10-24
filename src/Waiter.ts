@@ -1,4 +1,4 @@
-import { Dates, System } from 'cafe-utility'
+import { Dates, RollingValueProvider, System } from 'cafe-utility'
 import { getGnosisBzzBalance } from './GnosisBzzBalance'
 import { getGnosisNativeBalance } from './GnosisNativeBalance'
 import { MultichainLibrarySettings } from './Settings'
@@ -6,12 +6,13 @@ import { MultichainLibrarySettings } from './Settings'
 export async function waitForGnosisBzzBalanceToIncrease(
     address: string,
     initialBalance: bigint,
-    settings: MultichainLibrarySettings
+    settings: MultichainLibrarySettings,
+    jsonRpcProvider: RollingValueProvider<string>
 ): Promise<void> {
     await System.waitFor(
         async () => {
             try {
-                const balance = await getGnosisBzzBalance(address, settings)
+                const balance = await getGnosisBzzBalance(address, settings, jsonRpcProvider)
                 return balance.value > initialBalance
             } catch (error) {
                 console.error(`Error fetching ${address} wallet BZZ balance:`, error)
@@ -25,12 +26,13 @@ export async function waitForGnosisBzzBalanceToIncrease(
 export async function waitForGnosisNativeBalanceToDecrease(
     address: `0x${string}`,
     initialBalance: bigint,
-    settings: MultichainLibrarySettings
+    settings: MultichainLibrarySettings,
+    jsonRpcProvider: RollingValueProvider<string>
 ): Promise<void> {
     await System.waitFor(
         async () => {
             try {
-                const balance = await getGnosisNativeBalance(address, settings)
+                const balance = await getGnosisNativeBalance(address, settings, jsonRpcProvider)
                 return balance.value < initialBalance
             } catch (error) {
                 console.error(`Error fetching ${address} wallet native balance:`, error)
@@ -44,12 +46,13 @@ export async function waitForGnosisNativeBalanceToDecrease(
 export async function waitForGnosisNativeBalanceToIncrease(
     address: `0x${string}`,
     initialBalance: bigint,
-    settings: MultichainLibrarySettings
+    settings: MultichainLibrarySettings,
+    jsonRpcProvider: RollingValueProvider<string>
 ): Promise<void> {
     await System.waitFor(
         async () => {
             try {
-                const balance = await getGnosisNativeBalance(address, settings)
+                const balance = await getGnosisNativeBalance(address, settings, jsonRpcProvider)
                 return balance.value > initialBalance
             } catch (error) {
                 console.error(`Error fetching ${address} wallet native balance:`, error)

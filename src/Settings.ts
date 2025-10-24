@@ -1,13 +1,13 @@
 import { Dates } from 'cafe-utility'
 
 export interface MultichainLibrarySettings {
-    gnosisJsonRpc: string
+    gnosisJsonRpcProviders: string[]
     fetchTimeoutMillis: number
 }
 
 export function getDefaultMultichainLibrarySettings() {
     return {
-        gnosisJsonRpc: 'https://xdai.fairdatasociety.org/',
-        fetchTimeoutMillis: Dates.seconds(10)
+        gnosisJsonRpcProviders: ['https://rpc.gnosischain.com', 'https://xdai.fairdatasociety.org'],
+        fetchTimeoutMillis: Dates.seconds(12)
     }
 }

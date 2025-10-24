@@ -1,7 +1,12 @@
-import { Types } from 'cafe-utility'
+import { RollingValueProvider, Types } from 'cafe-utility'
+import { durableFetch } from './Fetch'
 import { MultichainLibrarySettings } from './Settings'
 
-export async function getGnosisTransactionCount(address: string, settings: MultichainLibrarySettings): Promise<number> {
+export async function getGnosisTransactionCount(
+    address: string,
+    settings: MultichainLibrarySettings,
+    jsonRpcProvider: RollingValueProvider<string>
+): Promise<number> {
     address = address.toLowerCase()
     if (address.startsWith('0x')) {
         address = address.slice(2)
@@ -12,12 +17,7 @@ export async function getGnosisTransactionCount(address: string, settings: Multi
         method: 'eth_getTransactionCount',
         params: [`0x${address}`, 'latest']
     }
-    const response = await fetch(settings.gnosisJsonRpc, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(settings.fetchTimeoutMillis)
-    })
+    const response = await durableFetch(jsonRpcProvider, settings, 'POST', payload)
     const data = await response.json()
     const object = Types.asObject(data)
     const count = Types.asHexString(object.result, { strictPrefix: true, uneven: true })

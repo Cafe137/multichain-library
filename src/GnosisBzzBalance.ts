@@ -1,10 +1,12 @@
-import { FixedPointNumber, Types } from 'cafe-utility'
+import { FixedPointNumber, RollingValueProvider, Types } from 'cafe-utility'
 import { Constants } from './Constants'
+import { durableFetch } from './Fetch'
 import { MultichainLibrarySettings } from './Settings'
 
 export async function getGnosisBzzBalance(
     address: string,
-    settings: MultichainLibrarySettings
+    settings: MultichainLibrarySettings,
+    jsonRpcProvider: RollingValueProvider<string>
 ): Promise<FixedPointNumber> {
     address = address.toLowerCase()
     if (address.startsWith('0x')) {
@@ -23,12 +25,7 @@ export async function getGnosisBzzBalance(
             'latest'
         ]
     }
-    const response = await fetch(settings.gnosisJsonRpc, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: AbortSignal.timeout(settings.fetchTimeoutMillis)
-    })
+    const response = await durableFetch(jsonRpcProvider, settings, 'POST', payload)
     const data = await response.json()
     const object = Types.asObject(data)
     const balance = Types.asHexString(object.result, { strictPrefix: true, uneven: true })

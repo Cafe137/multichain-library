@@ -1,3 +1,4 @@
+import { RollingValueProvider } from 'cafe-utility'
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { gnosis } from 'viem/chains'
@@ -13,7 +14,11 @@ export interface GnosisSwapAutoOptions {
     to: `0x${string}`
 }
 
-export async function swapOnGnosisAuto(options: GnosisSwapAutoOptions, settings: MultichainLibrarySettings) {
+export async function swapOnGnosisAuto(
+    options: GnosisSwapAutoOptions,
+    settings: MultichainLibrarySettings,
+    jsonRpcProvider: RollingValueProvider<string>
+) {
     const quote = await getSushiSwapQuote(options.amount.toString(), options.originAddress, options.to, settings)
     return swapOnGnosisCustom(
         {
@@ -25,7 +30,8 @@ export async function swapOnGnosisAuto(options: GnosisSwapAutoOptions, settings:
             value: BigInt(quote.tx.value),
             data: quote.tx.data
         },
-        settings
+        settings,
+        jsonRpcProvider
     )
 }
 
@@ -39,9 +45,13 @@ export interface GnosisSwapCustomOptions {
     data: `0x${string}`
 }
 
-export async function swapOnGnosisCustom(options: GnosisSwapCustomOptions, settings: MultichainLibrarySettings) {
+export async function swapOnGnosisCustom(
+    options: GnosisSwapCustomOptions,
+    settings: MultichainLibrarySettings,
+    jsonRpcProvider: RollingValueProvider<string>
+) {
     const account = privateKeyToAccount(options.originPrivateKey)
-    const client = createWalletClient({ chain: gnosis, transport: http(settings.gnosisJsonRpc) })
+    const client = createWalletClient({ chain: gnosis, transport: http(jsonRpcProvider.current()) })
     return account
         .signTransaction({
             chain: Constants.gnosisChainId,
@@ -53,7 +63,7 @@ export async function swapOnGnosisCustom(options: GnosisSwapCustomOptions, setti
             to: options.to,
             value: BigInt(options.value),
             data: options.data,
-            nonce: await getGnosisTransactionCount(options.originAddress, settings)
+            nonce: await getGnosisTransactionCount(options.originAddress, settings, jsonRpcProvider)
         })
         .then(signedTx => client.sendRawTransaction({ serializedTransaction: signedTx }))
 }

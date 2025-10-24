@@ -1,4 +1,4 @@
-import { Numbers } from 'cafe-utility'
+import { Numbers, RollingValueProvider } from 'cafe-utility'
 import { createWalletClient, http } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { gnosis } from 'viem/chains'
@@ -15,12 +15,13 @@ export interface TransferGnosisNativeOptions {
 
 export async function transferGnosisNative(
     options: TransferGnosisNativeOptions,
-    settings: MultichainLibrarySettings
+    settings: MultichainLibrarySettings,
+    jsonRpcProvider: RollingValueProvider<string>
 ): Promise<`0x${string}`> {
     const account = privateKeyToAccount(options.originPrivateKey)
     const client = createWalletClient({
         chain: gnosis,
-        transport: http(settings.gnosisJsonRpc)
+        transport: http(jsonRpcProvider.current())
     })
     return account
         .signTransaction({
@@ -32,7 +33,7 @@ export async function transferGnosisNative(
             type: 'legacy',
             to: options.to,
             value: BigInt(options.amount),
-            nonce: await getGnosisTransactionCount(options.originAddress, settings)
+            nonce: await getGnosisTransactionCount(options.originAddress, settings, jsonRpcProvider)
         })
         .then(signedTx => client.sendRawTransaction({ serializedTransaction: signedTx }))
 }

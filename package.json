@@ -18,7 +18,7 @@
     "license": "ISC",
     "description": "",
     "dependencies": {
-        "cafe-utility": "^33.2.0",
+        "cafe-utility": "^33.3.0",
         "viem": "^2.38.2"
     },
     "devDependencies": {

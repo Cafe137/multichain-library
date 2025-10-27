@@ -24,7 +24,7 @@ export async function swapOnGnosisAuto(
         {
             originPrivateKey: options.originPrivateKey,
             originAddress: options.originAddress,
-            gas: BigInt(quote.tx.gas),
+            gas: (BigInt(quote.tx.gas) * 5n) / 4n, // add 25% buffer
             gasPrice: BigInt(quote.tx.gasPrice),
             to: quote.tx.to,
             value: BigInt(quote.tx.value),
@@ -57,7 +57,7 @@ export async function swapOnGnosisCustom(
             chain: Constants.gnosisChainId,
             chainId: Constants.gnosisChainId,
             account: options.originAddress,
-            gas: BigInt(options.gas),
+            gas: (BigInt(options.gas) * 5n) / 4n, // add 25% buffer
             gasPrice: BigInt(options.gasPrice),
             type: 'legacy',
             to: options.to,

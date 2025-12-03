@@ -11,6 +11,7 @@ export interface TransferGnosisNativeOptions {
     originPrivateKey: `0x${string}`
     originAddress: `0x${string}`
     to: `0x${string}`
+    nonce?: number
 }
 
 export async function transferGnosisNative(
@@ -34,7 +35,8 @@ export async function transferGnosisNative(
                 type: 'legacy',
                 to: options.to,
                 value: BigInt(options.amount),
-                nonce: await getGnosisTransactionCount(options.originAddress, settings, jsonRpcProvider)
+                nonce:
+                    options.nonce ?? (await getGnosisTransactionCount(options.originAddress, settings, jsonRpcProvider))
             })
             const hash = await client.sendRawTransaction({ serializedTransaction })
             return hash

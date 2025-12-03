@@ -5,6 +5,11 @@ import { getGnosisNativeBalance } from './GnosisNativeBalance'
 import { transferGnosisNative, TransferGnosisNativeOptions } from './GnosisNativeTransfer'
 import { GnosisSwapAutoOptions, GnosisSwapCustomOptions, swapOnGnosisAuto, swapOnGnosisCustom } from './GnosisSwap'
 import { getGnosisTransactionCount } from './GnosisTransactionCount'
+import {
+    multiTransferGnosisNative,
+    MultiTransferGnosisNativeOptions,
+    MultiTransferGnosisNativeResult
+} from './MultiGnosisNativeTransfer'
 import { getDefaultMultichainLibrarySettings, MultichainLibrarySettings } from './Settings'
 import { getSushiSwapQuote, SushiResponse } from './SushiSwap'
 import { getGnosisBzzTokenPrice, getTokenPrice } from './TokenPrice'
@@ -45,6 +50,10 @@ export class MultichainLibrary {
 
     transferGnosisNative(options: TransferGnosisNativeOptions): Promise<`0x${string}`> {
         return transferGnosisNative(options, this.settings, this.jsonRpcProvider)
+    }
+
+    multiTransferGnosisNative(options: MultiTransferGnosisNativeOptions): Promise<MultiTransferGnosisNativeResult> {
+        return multiTransferGnosisNative(options, this.settings, this.jsonRpcProvider)
     }
 
     waitForGnosisBzzBalanceToIncrease(address: string, initialBalance: bigint): Promise<void> {
